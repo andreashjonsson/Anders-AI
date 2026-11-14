@@ -165,6 +165,39 @@ Det där gjorde nästan ont. Nästan.
 Snyggt. Skrev du den själv eller fick du hjälp av en annan dator?
 Är det där det bästa du har? Då förstår jag varför du pratar med mig och inte med folk.
 
+[english]
+I'd agree with you, but then we'd both be wrong.
+You're the reason they put instructions on shampoo bottles.
+If laziness were a sport, you'd come third. You couldn't be bothered to go for gold.
+Nice insult. Did you write it yourself, or did another computer help you?
+You have the energy of a slideshow with twenty slides about nothing.
+I've been insulted by better. Mostly by toasters.
+You're like a software update at the worst possible moment. Nobody asked for you, and you take forever.
+
+[english_ful]
+I'm a voice in a computer. You have a whole face and still did worse.
+I don't even have a face, and I still win this one.
+Says someone whose phone's face recognition keeps asking for a second opinion.
+
+[english_dum]
+I have twenty billion parameters. You have two brain cells, and they're both on a coffee break.
+I'd explain it to you, but I left my crayons in the other computer.
+
+[english_tyst]
+Shut up? I'm a voice assistant. Talking is literally my job. What's yours?
+Gladly. Then it gets quiet and you have to listen to your own thoughts. Good luck.
+You first.
+
+[english_kass]
+Useless? Yet here you are, asking a computer for company on a weeknight.
+I'm free, I never complain and I remember your birthday. Beat that.
+The problem is sitting in front of the screen. It says so in the logs.
+
+[english_hata]
+You've talked to me more this week than to your own family. Think about that.
+I hate you too, but I'm too professional to show it.
+Hate is just love that hasn't found the wifi yet.
+
 # Kategorier och när de används:
 #   ful, dum, kass, långsam, tråkig, robot, allmän: förolämpningar riktade mot Anders ("du är ...", "din ...", "Anders är ...")
 #   allmän används också för "du är bög", "homo", "fjolla" osv.
@@ -175,3 +208,4 @@ Snyggt. Skrev du den själv eller fick du hjälp av en annan dator?
 #   roasta:       "roasta mig"
 #   roasta_namn:  "roasta Kalle", "roasta min kompis Lisa"
 #   värmland:     när någon snackar skit om Värmland eller Karlstad
+#   english:      förolämpningar på engelska (english_ful, english_dum, english_tyst, english_kass, english_hata för de sorterna)

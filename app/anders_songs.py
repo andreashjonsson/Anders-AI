@@ -18,12 +18,28 @@ Om en gång ifrån Värmland jag tager mig en mö,
 så vet jag att aldrig jag mig ångrar.""",
 ]
 
-# "Kan du sjunga?", "sjung något", "can you sing", "sing me a song" ...
-_ASK_TO_SING = re.compile(r"\bsjung(a|er)?\b|\bsing\b|\bsinging\b", re.I)
+# "Kan du sjunga?", "sjung något", "en till låt", "can you sing", "sing me a song" ...
+_ASK_TO_SING = re.compile(
+    r"\bsjung(a|er)?\b|\bsing\b|\bsinging\b"
+    r"|\b(en|ett)\s+(till|annan|annat|ny)\s+(låt|sång|visa)\b|\b(låt|sång|visa)\s+till\b|\banother song\b", re.I)
+_unsung: list[str] = []  # songs left before any song is repeated
 
 
-def pick_song(text: str) -> str | None:
-    """A random song if *text* asks Anders to sing, else None."""
-    if not _ASK_TO_SING.search(text or ""):
+def pick_song(text: str, force: bool = False) -> str | None:
+    """A song if *text* asks Anders to sing (or *force*, e.g. 'en till' right after a song), else None.
+
+    Every song is sung once before any of them comes back, and never the same one twice in a row.
+    """
+    if not SONGS or not (force or _ASK_TO_SING.search(text or "")):
         return None
-    return random.choice(SONGS)
+    global _last
+    if not _unsung:
+        _unsung.extend(SONGS)
+        random.shuffle(_unsung)
+        if len(_unsung) > 1 and _unsung[-1] == _last:
+            _unsung.insert(0, _unsung.pop())
+    _last = _unsung.pop()
+    return _last
+
+
+_last: str | None = None

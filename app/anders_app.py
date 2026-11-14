@@ -46,6 +46,10 @@ from anders_alarms import Scheduler, fmt_duration  # noqa: E402
 from anders_system import SystemControl  # noqa: E402
 import anders_songs  # noqa: E402
 import anders_roasts  # noqa: E402
+import anders_jokes  # noqa: E402
+import anders_hearing  # noqa: E402
+from anders_text import (_MORE, _SCHEDULE_TOOLS, _asked_to_schedule, _source_links,  # noqa: E402
+                         _speakable, _unsupported_names)
 
 import faulthandler  # noqa: E402
 import signal  # noqa: E402
@@ -77,6 +81,8 @@ DEFAULTS = {
     "tools": True,  # internet, weather, time, location, calculator
     "home_location": "",  # e.g. "Karlstad"; empty = approximate location from the IP address
     "roasts": True,  # hand-written comebacks when someone insults Anders (roasts.txt)
+    "jokes": True,  # hand-written jokes when someone asks for one (jokes.txt)
+    "fact_check": True,  # check longer web-based answers against the sources before showing them
 }
 _ENV_MAP = {
     "warmth": "JARVIS_TTS_WARMTH",
@@ -135,7 +141,32 @@ BUS = Bus()
 _T0 = time.time()
 
 
+def _setup_log():
+    """~/.openjarvis/.state/anders.log: what Anders heard, did and what went wrong (max 3 x 1 MB)."""
+    import logging
+    import logging.handlers
+
+    logger = logging.getLogger("anders")
+    if not logger.handlers:
+        path = Path.home() / ".openjarvis" / ".state" / "anders.log"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        h = logging.handlers.RotatingFileHandler(path, maxBytes=1_000_000, backupCount=3, encoding="utf-8")
+        h.setFormatter(logging.Formatter("%(asctime)s %(levelname)-7s %(message)s", "%Y-%m-%d %H:%M:%S"))
+        logger.addHandler(h)
+        logger.setLevel(logging.DEBUG if os.environ.get("ANDERS_DEBUG") else logging.INFO)
+
+        def hook(args):  # crashes in background threads end up in the log instead of vanishing
+            logger.error("crash in thread %s", getattr(args.thread, "name", "?"),
+                         exc_info=(args.exc_type, args.exc_value, args.exc_traceback))
+        threading.excepthook = hook
+    return logger
+
+
+log = _setup_log()
+
+
 def _dbg(msg: str) -> None:
+    log.debug(msg)
     if os.environ.get("ANDERS_DEBUG"):
         print(f"[{time.time() - _T0:7.2f}] {msg}", file=sys.stderr, flush=True)
 
@@ -153,6 +184,10 @@ class Anders:
         self.stop_speaking = threading.Event()
         self.cancel_reply = threading.Event()
         self.ptt = threading.Event()  # "Prata" button: listen once without wake phrase
+        from collections import deque
+        self.turn_sources: list[dict] = []  # web pages the current answer is based on (shown under it)
+        self.last_canned: tuple[str, float] | None = None  # ("song" | "joke" | "roast", when)
+        self.voice_levels: deque = deque(maxlen=20)  # loudness of recent wake-phrase utterances (the user's voice)
         self.muted = not SETTINGS["handsfree"]
         self.busy = threading.Event()  # thinking/speaking: mic is closed (no echo)
         self.followup_lang: str | None = None
@@ -267,6 +302,16 @@ class Anders:
             return False
         self.countdown_cancel.set()
         return True
+
+    def _usual_level(self) -> float:
+        levels = sorted(self.voice_levels)
+        return levels[len(levels) // 2] if levels else 0.0
+
+    def _loud_enough(self, level: float) -> bool:
+        """Follow-ups without wake phrase must be roughly as loud as the user's own voice (not the TV)."""
+        if len(self.voice_levels) < 3:
+            return True  # still learning the user's level
+        return level >= 0.35 * self._usual_level()
 
     def _say(self, text: str, lang: str, via: str = "voice") -> None:
         if via == "text" and not (SETTINGS["speak_replies"] and SETTINGS.get("speak_typed", True)):
@@ -426,7 +471,23 @@ class Anders:
                      "innan du svarar – sökresultatens korta utdrag är ofta ofullständiga eller gamla. "
                      "Svara sedan kort och naturligt med det viktigaste. Läs aldrig upp webbadresser; "
                      "nämn källan med namn om det är relevant (t.ex. 'enligt SMHI'). "
-                     "Väderdata gäller användarens plats om inget annat sägs.")
+                     "Väderdata gäller användarens plats om inget annat sägs."
+                     "\n\n## Riktiga ställen\nNär användaren vill ha förslag på restauranger, kaféer, barer, butiker, "
+                     "evenemang, aktiviteter eller sevärdheter på en ort (t.ex. planera en dejt, vad kan man göra i X): "
+                     "gör FLERA sökningar med web_search, en per del av svaret (t.ex. 'restauranger Karlstad', "
+                     "'julbord Karlstad 2026', 'kafé Karlstad centrum', 'evenemang Karlstad december'). "
+                     "Varje namn på ett ställe, evenemang eller en scen som du skriver MÅSTE stå ordagrant i ett sökresultat "
+                     "eller på en sida du läst med fetch_webpage. Skriv aldrig ett namn du inte har sett i resultaten, inte ens "
+                     "om du tror att stället finns. Skriv datum, tider och scener exakt som i källan. Föreslå inte "
+                     "medlems- eller privata aktiviteter. Saknas förslag för någon del, skriv det och hänvisa till var man "
+                     "kan kolla (t.ex. karlstad.se). "
+                     "Kollektivtrafiken i Värmland heter Värmlandstrafik.")
+        note += ("\n\n## Formatering\nKorta svar (fakta, väder, timer, småprat): 1-3 meningar utan Markdown. "
+                 "Längre svar (planer, förslag på flera ställen, listor, guider, recept, jämförelser, steg-för-steg) "
+                 "visas på skärmen och ska formateras snyggt i Markdown, som ChatGPT: börja med EN kort pratig mening "
+                 "i vanlig text, utan fetstil eller rubrik (bara den läses upp), sedan korta avsnitt med ### rubriker, punktlistor med -, "
+                 "**fetstil** för namn på ställen och tider, och korta rader. Inga tabeller och inga emojis. "
+                 "Håll det under ungefär 20 rader och avsluta med en kort mening.")
         return note
 
     def _chat(self, messages: list, on_token, on_tool, max_rounds: int = 5) -> str:
@@ -440,7 +501,10 @@ class Anders:
         use_tools = SETTINGS.get("tools", True)
         think = (SETTINGS.get("reasoning") or "low") if "gpt-oss" in self.model else False
         final = ""
+        sources: list[str] = []  # web results this answer is based on (for the fact check)
         for _round in range(max_rounds + 1):
+            # After a web search the answer is held back until it has been checked against the sources.
+            hold = bool(sources) and SETTINGS.get("fact_check", True)
             payload = {"model": self.model, "messages": msgs, "stream": True, "think": think,
                        "keep_alive": "10m", "options": {"num_predict": 1024, "num_ctx": _num_ctx()}}
             if use_tools and _round < max_rounds:
@@ -462,13 +526,18 @@ class Anders:
                     tok = msg.get("content") or ""
                     if tok:
                         content.append(tok)
-                        on_token(tok)
+                        if not hold:
+                            on_token(tok)
                     calls.extend(msg.get("tool_calls") or [])
                     if chunk.get("done"):
                         break
             final = "".join(content)
             _dbg(f"round {_round}: {len(calls)} tool call(s), {len(final)} chars")
             if not calls:
+                if hold:
+                    final = self._fact_check(final, sources, msgs)
+                    on_token(final)
+                self.turn_sources = _source_links(sources, final)
                 return final
             msgs.append({"role": "assistant", "content": final, "tool_calls": calls})
             for c in calls:
@@ -489,9 +558,56 @@ class Anders:
                     continue
                 on_tool(name, args)
                 result = self.tools.run(name, args)
+                log.info("tool %s(%s) -> %d chars", name, json.dumps(args, ensure_ascii=False)[:200], len(result))
+                if name in ("web_search", "fetch_webpage"):
+                    sources.append(result)
                 _dbg(f"tool {name}({args}) -> {result[:120]!r}")
                 msgs.append({"role": "tool", "content": result, "tool_name": name})
         return final
+
+    def _fact_check(self, draft: str, sources: list[str], msgs: list) -> str:
+        """Second pass for longer web-based answers: drop names and details the sources don't support."""
+        if len(draft) < 350 and "\n" not in draft.strip():
+            return draft  # short factual answer: nothing to gain
+        if self.cancel_reply.is_set():
+            return draft
+        question = next((m.get("content", "") for m in reversed(msgs) if m.get("role") == "user"), "")
+        state("thinking", "Faktakollar…")
+        missing = _unsupported_names(draft, sources, question)
+        log.info("fact check: names not in the sources: %s", missing or "none")
+        if not missing:
+            return draft  # every name in the answer is in the sources: no slow rewrite needed
+        src = "\n\n---\n\n".join(sources)[-14000:]
+        prompt = (
+            "Du är faktagranskare. Nedan finns en fråga, KÄLLOR från webbsökningar och ett UTKAST till svar.\n"
+            "Skriv om utkastet så att det bara innehåller sådant som stöds av källorna:\n"
+            "- Varje namn på ett ställe, en restaurang, ett kafé, en butik, ett evenemang, en artist, en scen, en gata "
+            "eller en webbsida måste stå i källorna. Står det inte där: ta bort det.\n"
+            "- Rätta stavningen av namn så att den stämmer exakt med källorna.\n"
+            "- Datum, tider, priser och adresser: behåll bara om de står i källorna, annars ta bort dem.\n"
+            "- Ta bort sådant som enligt källorna bara är för medlemmar eller privata grupper.\n"
+            "- Allmänna tips utan namn (klä er varmt, boka i förväg, ta en promenad) får stå kvar. Men om ett allmänt "
+            "tips nämner en namngiven plats, gata, park eller byggnad som inte står i källorna: skriv om tipset utan namnet.\n"
+            "- Lägg inte till något nytt. Behåll Markdown-formateringen, tonen och den första vanliga meningen.\n"
+            "- Om en hel del blir tom, ta bort den rubriken.\n"
+            "Svara ENDAST med det färdiga svaret, utan kommentarer om granskningen.\n"
+            f"En automatisk kontroll hittade INTE följande namn i källorna: {', '.join(missing)}. "
+            "Ta bort dem (eller hela punkten), om du inte ser att de ändå står i källorna med annan stavning.\n\n"
+            f"FRÅGA:\n{question}\n\nKÄLLOR:\n{src}\n\nUTKAST:\n{draft}")
+        try:
+            import httpx
+            r = httpx.post("http://127.0.0.1:11434/api/chat", timeout=httpx.Timeout(300, connect=10), json={
+                "model": self.model, "stream": False, "keep_alive": "10m",
+                "think": "low" if "gpt-oss" in self.model else False,
+                "options": {"num_predict": 1500, "num_ctx": _num_ctx(), "temperature": 0.2},
+                "messages": [{"role": "user", "content": prompt}]})
+            r.raise_for_status()
+            checked = ((r.json().get("message") or {}).get("content") or "").strip()
+        except Exception as exc:
+            _dbg(f"fact check failed: {exc}")
+            return draft
+        _dbg(f"fact check: {len(draft)} -> {len(checked)} chars")
+        return checked if len(checked) > 40 else draft
 
     # -- conversations -------------------------------------------------------
     def _gen_kwargs(self) -> dict:
@@ -782,6 +898,9 @@ class Anders:
         self.busy.set()
         self.stop_speaking.clear()
         self.cancel_reply.clear()
+        log.info("user (%s, %s): %s", via, lang, text[:300])
+        self.turn_sources = []
+        t_start = time.time()
         BUS.emit({"type": "user", "text": text, "lang": lang, "via": via})
         state("thinking", "Tänker…" if lang == "sv" else "Thinking…")
         self.history.append(self.Message(role=self.Role.USER, content=text))
@@ -800,16 +919,27 @@ class Anders:
         speaker = threading.Thread(target=self._speaker, args=(sentences, lang), daemon=True) if speak else None
         if speaker:
             speaker.start()
-        buf = {"text": "", "pending": "", "chunks": 0}
+        buf = {"text": "", "pending": "", "chunks": 0, "screen_only": False}
+        md_start = re.compile(r"(^|\n)[ \t]*(#{1,6}\s|[-*•]\s|\d+[.)]\s|\*\*|\|)")
         sentence_end = re.compile(r"(.{12,}?[.!?…])\s+(?=\S)", re.S)
         clause_end = re.compile(r"(.{25,}?[,;:–])\s+(?=\S)", re.S)  # first chunk only: speak sooner
 
         def on_token(tok: str) -> None:
             buf["text"] += tok
             BUS.emit({"type": "token", "text": tok})
-            if not speak:
+            if not speak or buf["screen_only"]:
                 return
             buf["pending"] += tok
+            # Formatted answers (lists, headings): only the intro is read aloud, the rest is for the screen.
+            md = md_start.search(buf["pending"])
+            if md:
+                buf["pending"] = buf["pending"][:md.start()]
+                buf["screen_only"] = True
+                if buf["pending"].strip():
+                    sentences.put(_speakable(buf["pending"]))
+                    buf["chunks"] += 1
+                buf["pending"] = ""
+                return
             # hand text to the speaker as soon as a sentence (or, at the start, a clause) is complete
             while True:
                 m = sentence_end.match(buf["pending"])
@@ -817,7 +947,7 @@ class Anders:
                     m = clause_end.match(buf["pending"])
                 if not m:
                     break
-                sentences.put(m.group(1).strip())
+                sentences.put(_speakable(m.group(1)))
                 buf["chunks"] += 1
                 _dbg(f"queued: {m.group(1).strip()[:40]!r}")
                 buf["pending"] = buf["pending"][m.end():]
@@ -828,8 +958,20 @@ class Anders:
                 state("thinking", label)
                 BUS.emit({"type": "tool", "name": name, "args": args, "label": label})
 
-            # Songs and comebacks are hand-written: the language model isn't funny in Swedish.
-            canned = anders_songs.pick_song(text) or (anders_roasts.pick_roast(text, lang) if SETTINGS.get("roasts", True) else None)
+            # Songs, jokes and comebacks are hand-written: the language model isn't funny in Swedish.
+            canned, kind = None, None
+            again = _MORE.match(text) and self.last_canned and time.time() - self.last_canned[1] < 180
+            if again and self.last_canned[0] == "song":  # "en till" right after a song: another song
+                canned, kind = anders_songs.pick_song(text, force=True), "song"
+            if canned is None and (song := anders_songs.pick_song(text)):
+                canned, kind = song, "song"
+            if canned is None and SETTINGS.get("jokes", True) and (joke := anders_jokes.pick_joke(text, lang)):
+                canned, kind = joke, "joke"
+            if canned is None and SETTINGS.get("roasts", True) and (roast := anders_roasts.pick_roast(text, lang)):
+                canned, kind = roast, "roast"
+            if kind:
+                self.last_canned = (kind, time.time())
+                log.info("canned %s", kind)
             if canned is not None:
                 on_token(canned)
                 reply = canned
@@ -837,16 +979,37 @@ class Anders:
                 reply = self._chat(messages, on_token, on_tool)
         except Exception as exc:
             reply = buf["text"]
+            log.exception("reply failed")
+            if not reply.strip():
+                down = "connect" in str(exc).lower() or "refused" in str(exc).lower()
+                reply = (("Jag får ingen kontakt med min hjärna, Ollama, just nu. Prova igen om en stund."
+                          if down else "Något gick snett när jag skulle svara. Prova att fråga igen.")
+                         if lang == "sv" else
+                         ("I can't reach my language model right now. Try again in a moment."
+                          if down else "Something went wrong while I was answering. Please try again."))
+                on_token(reply)
             BUS.emit({"type": "info", "text": f"Språkmodellen svarade inte: {exc}"})
-        if speak and buf["pending"].strip():
-            sentences.put(buf["pending"].strip())
+        if not reply.strip() and not self.cancel_reply.is_set():
+            # Never just go quiet: the model sometimes returns nothing at all.
+            log.warning("empty reply to %r", text[:200])
+            reply = "Jag hörde dig, men kom inte på något svar. Kan du säga det på ett annat sätt?" if lang == "sv" \
+                else "I heard you, but I couldn't come up with an answer. Could you put it another way?"
+            on_token(reply)
+        if speak and buf["pending"].strip() and not buf["screen_only"]:
+            sentences.put(_speakable(buf["pending"]))
+        if speak and buf["screen_only"]:
+            sentences.put("Resten står på skärmen." if lang == "sv" else "The rest is on the screen.")
         if speak:
             sentences.put(None)
         if conv is self.conv:
             self.history.append(self.Message(role=self.Role.ASSISTANT, content=reply))
+        if self.turn_sources:
+            BUS.emit({"type": "sources", "items": self.turn_sources})
         if reply.strip():
-            conv["messages"].append({"role": "assistant", "text": reply, "lang": lang, "ts": time.time()})
+            conv["messages"].append({"role": "assistant", "text": reply, "lang": lang, "ts": time.time(),
+                                     **({"sources": self.turn_sources} if self.turn_sources else {})})
             self.memory.store.save(conv)
+        log.info("reply (%.1f s): %s", time.time() - t_start, reply[:300].replace("\n", " "))
         BUS.emit({"type": "reply_done", "text": reply})
         if speaker:
             speaker.join()
@@ -858,6 +1021,23 @@ class Anders:
         self.followup_lang = lang if (via == "voice" and SETTINGS["followup_seconds"] > 0) else None
         self.busy.clear()
         state("idle")
+
+    def regenerate(self) -> None:
+        """'Nytt svar': forget the last answer and ask the same question again."""
+        msgs = self.conv["messages"]
+        while msgs and msgs[-1]["role"] == "assistant":
+            msgs.pop()
+        if not msgs or msgs[-1]["role"] != "user":
+            return
+        last = msgs.pop()
+        while self.history and getattr(self.history[-1].role, "value", "") in ("assistant", "user") \
+                and self.history[-1].role != self.Role.SYSTEM:
+            role = self.history.pop().role
+            if role == self.Role.USER:
+                break
+        self.last_canned = None
+        log.info("regenerate: %r", last["text"][:200])
+        self.handle(last["text"], last.get("lang") or "sv", last.get("via") or "text")
 
     def worker(self) -> None:
         while not self.shutdown.is_set():
@@ -872,6 +1052,8 @@ class Anders:
                     self.handle(text, lang, "text")
             elif kind == "voice":
                 self.handle(payload["text"], payload["lang"], "voice")
+            elif kind == "regenerate":
+                self.regenerate()
             elif kind == "replay":
                 self.replay(payload["text"], payload.get("lang", ""), payload.get("id", ""))
 
@@ -944,15 +1126,34 @@ class Anders:
             if audio is None:
                 continue
             models = hf._load_models()
-            if not (ptt or follow) and not hf._is_wake(models, audio):
+            woke = not (ptt or follow)
+            if woke and not hf._is_wake(models, audio):
                 continue
-            lang = hf._detect_lang(models, audio)
-            state("transcribing", "Transkriberar…" if lang == "sv" else "Transcribing…")
-            text = hf._transcribe(models, audio, lang)
-            if not (ptt or follow):
-                text = hf._WAKE.sub("", text, count=1).strip()
+            level = _speech_level(audio)
+            if follow and not ptt and not self._loud_enough(level):
+                log.info("ignored follow-up: too quiet (%.4f vs your usual %.4f) - probably TV/background",
+                         level, self._usual_level())
+                continue
+            state("transcribing", "Transkriberar…")
+            heard = anders_hearing.hear(models, audio, followup=bool(follow and not ptt))
+            lang = heard.lang
+            text = hf._WAKE.sub("", heard.text, count=1).strip() if woke else heard.text
+            log.info("heard %r (%s, confidence %.2f, level %.4f)%s", heard.text, lang, heard.confidence, level,
+                     f" -> ignored: {heard.reason}" if not heard.ok else "")
+            if woke and heard.text:
+                self.voice_levels.append(level)  # learn how loud the user usually is
+            if not heard.ok and woke and heard.text and text and len(re.sub(r"\W", "", text)) >= 2:
+                # Woken on purpose but the rest was unclear: say so instead of guessing or staying silent.
+                self._say("Jag hörde inte riktigt, kan du ta det igen?" if lang == "sv"
+                                else "Sorry, I didn't catch that. Could you say it again?", lang)
+                self.followup_lang = lang
+                continue
+            if not heard.ok and not woke:
+                if ptt:
+                    BUS.emit({"type": "info", "text": "Jag hörde inget tydligt. Prova igen, lite närmare mikrofonen."})
+                continue
             if not text or len(re.sub(r"\W", "", text)) < 2:
-                if not (ptt or follow):  # only the wake phrase: listen for the command
+                if woke:  # only the wake phrase: listen for the command
                     hf._beep()
                     self.followup_lang = lang
                 continue
@@ -971,19 +1172,18 @@ class Anders:
                     break
 
 
-_SCHEDULE_TOOLS = {"set_timer", "set_alarm", "set_reminder"}
-_SCHEDULE_WORDS = re.compile(
-    r"påminn|påminnelse|remind|timer|larm|alarm|väck|wake|nedräkning|countdown|"
-    r"minut|minute|sekund|second|timm|hour|klockan|o'?clock|\bkl\b|\d{1,2}[:.]\d{2}|"
-    r"imorgon|i morgon|tomorrow|ikväll|i kväll|tonight|\bom \d|\bin \d", re.I)
-
-
-def _asked_to_schedule(msgs: list) -> bool:
-    """True if the user's latest message actually asks for a timer, alarm or reminder."""
-    for m in reversed(msgs):
-        if m.get("role") == "user":
-            return bool(_SCHEDULE_WORDS.search(m.get("content") or ""))
-    return True
+def _speech_level(audio: Any) -> float:
+    """Loudness of the voiced part of an utterance (RMS of the loudest 30 % of 20 ms frames)."""
+    try:
+        a = np.asarray(audio, dtype=np.float32)
+        n = len(a) // 320
+        if n < 3:
+            return float(np.sqrt(np.mean(a ** 2))) if len(a) else 0.0
+        rms = np.sqrt((a[: n * 320].reshape(n, 320) ** 2).mean(axis=1))
+        top = np.sort(rms)[-max(1, int(n * 0.3)):]
+        return float(top.mean())
+    except Exception:
+        return 1.0
 
 
 def _num_ctx() -> int:
@@ -1065,6 +1265,12 @@ async def ws_endpoint(ws: WebSocket) -> None:
                 ANDERS.stop_speaking.set()  # stop whatever is playing first
                 ANDERS.inbox.put(("replay", {"text": str(msg["text"])[:4000], "lang": msg.get("lang", ""),
                                              "id": str(msg.get("id", ""))}))
+            elif t == "open_url":
+                url = str(msg.get("url", ""))
+                if re.match(r"^https?://[^\s\"']+$", url):
+                    subprocess.Popen(["xdg-open", url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            elif t == "regenerate" and not ANDERS.busy.is_set():
+                ANDERS.inbox.put(("regenerate", None))
             elif t == "confirm_action":
                 if ANDERS.pending_active() and msg.get("id") == ANDERS.pending["id"]:
                     ANDERS.confirm_pending()

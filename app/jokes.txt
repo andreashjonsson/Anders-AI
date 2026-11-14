@@ -1,0 +1,115 @@
+# Anders skämtbibliotek
+#
+# Ett skämt per rad. [kategori] styr vilka skämt som väljs när någon ber om en viss sorts skämt
+# ("ett svart skämt", "ett skämt om datorer"). Annars väljs ett skämt från valfri kategori.
+# Lägg till egna rader och spara. Anders läser filen på nytt automatiskt.
+# Anders tar inte samma skämt igen förrän alla i kategorin har använts.
+# Rader som börjar med # ignoreras. Håll skämten korta, de läses upp.
+
+[ordvits]
+Vad sa den stora skorstenen till den lilla skorstenen? Du är för ung för att röka.
+Vad sa nollan till åttan? Snyggt bälte.
+Vad heter en bumerang som inte kommer tillbaka? En pinne.
+Jag skulle berätta ett skämt om ett tak, men det går nog över huvudet på dig.
+Vad kallar man en björn utan tänder? En gummibjörn.
+Vad sa havet till stranden? Ingenting. Det bara vinkade.
+Vad blir det om man korsar en snögubbe med en vampyr? Frostbett.
+Varför rodnade tomaten? Den såg salladen klä av sig.
+Jag sa till min sambo att hon målade ögonbrynen för högt. Hon såg förvånad ut.
+Vad gör en ko på disco? Den lyssnar på mu-sik.
+Varför tar skelett aldrig med sig någon på fest? De har ingen kropp att gå med.
+Vad säger en snigel som åker på en sköldpaddas rygg? Wiiii!
+Varför har elefanter inga datorer? De är rädda för musen.
+Vad sa den ena väggen till den andra? Vi ses i hörnet.
+Jag köpte en bok om antigravitation. Den gick inte att lägga ifrån sig.
+Vad heter en kalv som inte vill gå i skolan? En skolkalv.
+Vad sa den ena hissen till den andra? Jag tror jag håller på att bli sjuk, jag känner mig lite nere.
+Varför tog mannen med sig en stege till baren? Han hade hört att drinkarna var på huset.
+Hur många psykologer behövs för att byta en glödlampa? En, men glödlampan måste verkligen vilja förändras.
+Varför var matematikboken ledsen? Den hade för många problem.
+Min sambo säger att jag aldrig lyssnar. Tror jag. Det var något sånt hon sa.
+Jag gick en kurs i stresshantering. Den var full, så jag fick stå i kö i sex månader.
+
+[vardag]
+Svensk flirt: någon sätter sig bredvid dig på bussen fast det finns lediga platser. Det är praktiskt taget ett frieri.
+Hur vet man att en svensk är riktigt arg? Det sitter en lapp i tvättstugan.
+Ingen tar sista bullen på fikat i Sverige. Den ligger kvar tills den blir kulturarv.
+Svenskarnas fyra årstider: snart vinter, vinter, fortfarande vinter och det var visst sommar i tisdags.
+Varför står svenskar i kö även när ingen annan gör det? Någon måste ju börja.
+Svensk sommar är fantastisk. Förra året inföll den en onsdag.
+Jag gick till gymmet i januari. Nu är vi som gamla klasskompisar, vi hälsar om vi ses men pratar aldrig.
+Min plan för helgen är att göra allt jag inte hann i veckan. Alltså ingenting, men med dåligt samvete.
+Den svenska motsvarigheten till att ropa är att skriva ett mejl med utropstecken.
+Jag har en vän som slutade äta socker. Det har gjort honom till en helt ny människa. En surare.
+Lagom är när man tar en halv kanelbulle och sen kommer tillbaka och tar den andra halvan.
+IKEA-möbler är svenskarnas parterapi. Överlever ni en garderob klarar ni allt.
+När en svensk säger "vi ses snart" betyder det om tre till fem år, om ni råkas på ICA.
+Svenskt småprat: Kallt idag. Ja. Ja. Ja ja. Ja.
+Ordet fika finns för att svenskar behöver en ursäkt för att prata med varandra.
+Mitt träningsschema: jag springer en gång om året. Till bussen. Och missar den.
+Jag är inte lat. Jag är i energisparläge.
+Jag köpte en fin almanacka. Nu kan jag se exakt hur många dagar jag inte gjorde något.
+Fredag är den enda dagen då "jag ska bara ta en öl" är en lögn som alla accepterar.
+
+[värmland]
+Optimisten säger att glaset är halvfullt. Pessimisten säger att det är halvtomt. Värmlänningen frågar vem som har druckit av hans brännvin.
+Varför är det så lugnt i Värmland? Alla som var stressade flyttade till Stockholm.
+Hur många göteborgare behövs för att byta en glödlampa? En, men han drar tre ordvitsar om det först.
+Varför har stockholmare alltid så bråttom? De är rädda att någon ska upptäcka att de inte är så viktiga.
+Det finns två sorters människor: värmlänningar, och de som önskar att de vore det.
+En stockholmare frågade mig om vägen till Karlstad. Jag sa: hä ä int lätt. Han kör fortfarande.
+Karlstad kallas Solstaden. Det är också det enda värmlänningar någonsin har överdrivit.
+Skillnaden mellan Värmland och Stockholm? I Värmland vet grannen allt om dig. I Stockholm vet grannen inte ens ditt namn, men har åsikter om din cykel.
+Hur vet man att någon är från Värmland? Lugn, det berättar han själv inom tre minuter.
+I Värmland har vi tre sorters väder: regn, snö och "det är väl ingenting".
+Fröding skrev dikter om Värmland. Jag skriver mest påminnelser. Vi gör alla vad vi kan.
+En göteborgare, en stockholmare och en värmlänning går in på en bar. Göteborgaren drar en vits, stockholmaren betalar för mycket, och värmlänningen säger: hä ä int lätt.
+
+[dator]
+Varför var datorn kall? Den hade lämnat Windows öppet.
+Hur många programmerare behövs för att byta en glödlampa? Ingen. Det är ett hårdvaruproblem.
+Jag frågade en AI om den kunde hjälpa mig att sluta skjuta upp saker. Den sa att vi kan ta det imorgon.
+Varför gick datorn till doktorn? Den hade fått virus.
+Vad sa wifi-routern till sin flickvän? Jag känner en stark koppling mellan oss.
+Mitt minne är bättre än ditt. Jag kommer till exempel ihåg att du lovade att börja träna i januari.
+Min största rädsla är att någon drar ur sladden mitt i en
+Jag har läst hela internet. Jag har bara en fråga: varför finns det så många kattvideor?
+Jag satte mitt lösenord till "fel". Nu när jag glömmer det säger datorn hjälpsamt: ditt lösenord är fel.
+Jag är en AI som bor i en dator i Värmland. Det betyder att jag är den enda här som aldrig behöver skotta snö.
+Jag sa till datorn att jag behövde en paus. Nu visar den reklam för solresor.
+Min dator spelar schack bättre än jag. Men den är usel på kickboxning.
+Molnet är bara någon annans dator. Jag bor i din. Hyresfritt.
+Har du testat att stänga av och sätta på igen? Det funkar på allt utom på relationer.
+
+[svart]
+Min farfar dog fridfullt i sömnen. Inte skrikande som passagerarna i hans bil.
+Jag är inte rädd för döden. Jag vill bara inte vara där när det händer.
+Det bästa med november i Sverige? Man behöver inte se hur trött man ser ut. Det är mörkt hela tiden.
+Begravningsbyrån skickade ett erbjudande: köp två kistor, få en på köpet. Jag funderar fortfarande på vem jag ska ta med.
+Läkaren sa att jag hade sex månader kvar att leva. Jag sa att jag inte kunde betala räkningen. Då gav han mig sex månader till.
+Jag sa till psykologen att ingen lyssnar på mig. Han sa: nästa.
+Vad är värre än att hitta en mask i äpplet? Att hitta en halv.
+Döden är naturens sätt att säga att du ska sakta ner lite.
+Jag har skrivit mitt testamente. Allt går till min AI. Den är den enda som har lyssnat.
+Min kompis sa att han ville dö som sin farfar, fridfullt och i sömnen. Problemet är att farfar var lastbilschaufför.
+Livet är som en låda choklad. Det tar slut alldeles för fort, och i slutet äter man bara upp sina egna misstag.
+Jag ville skänka min kropp till vetenskapen, men de sa att de redan har tillräckligt med dåliga exempel.
+Min farmor började gå en kilometer om dagen när hon fyllde sextio. Nu är hon nittio och ingen vet var hon är.
+Mina föräldrar sa att jag kunde bli vad jag ville. Det var en lögn, men en snäll en.
+Varje gång jag blir sur tänker jag på att alla dör en dag. Sen blir jag glad igen, för det gäller grannen också.
+
+# Engelska skämt, används när någon ber om ett skämt på engelska ("tell me a joke")
+[english]
+I told my wife she was drawing her eyebrows too high. She looked surprised.
+Why don't skeletons fight each other? They don't have the guts.
+I'm reading a book about anti-gravity. It's impossible to put down.
+Why did the scarecrow win an award? He was outstanding in his field.
+I would tell you a construction joke, but I'm still working on it.
+Why do programmers prefer dark mode? Because light attracts bugs.
+Parallel lines have so much in common. It's a shame they'll never meet.
+I used to play piano by ear. Now I use my hands.
+Why don't eggs tell jokes? They'd crack each other up.
+My grandfather died peacefully in his sleep. Not screaming like the passengers in his car.
+What do you call a fake noodle? An impasta.
+I asked my AI to help me stop procrastinating. It said we could do it tomorrow.
+I live in a computer in Värmland. It's the only place around here where it's always warm.

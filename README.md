@@ -94,10 +94,21 @@ The **first time** takes a few minutes while the voice and hearing load. Then sa
 Things Anders can do: weather, timers and alarms, shopping/to-do lists, electricity prices, open apps,
 remember things you tell it, and answer general questions.
 
+**Tips on real places:** ask things like "planera en date i Karlstad" or "bra restauranger i Karlstad". Anders searches
+the web, only names places that are in the search results (a fact check removes anything made up), and shows the
+sources as links under the answer. Longer answers are shown as neat lists; only the first sentence is read aloud.
+
+**Under every answer:** 📋 **Kopiera** copies it, 🔄 **Nytt svar** asks again for a different answer.
+
+**Jokes:** "berätta ett skämt", "ett svart skämt", "ett skämt om datorer", then "ett till". About 95 hand-written jokes
+(also in English: "tell me a joke").
+
 **Roasts:** insult Anders ("du är dum", "håll käften") or say "roasta mig" / "roasta Kalle" and he hits back with one of
-130+ hand-written comebacks. Questions and commands are never roasted. Turn it off under ⚙️ → **Roasts**.
+140+ hand-written comebacks (Swedish and English). Questions and commands are never roasted. Turn it off under ⚙️ → **Roasts**.
 
 **Singing:** ask "kan du sjunga?" and Anders recites *Ack Värmland*.
+
+**No internet?** Anders says so instead of guessing.
 
 ---
 
@@ -109,7 +120,8 @@ remember things you tell it, and answer general questions.
 | Anders hears me but doesn't answer | Run `ollama list`. It should show `gpt-oss-coder`. If not, run `./install.sh` again |
 | The voice sounds robotic | The real voice needs the NVIDIA card. Check that `nvidia-smi` works, then restart the computer |
 | The installer says "Do step 1 first" | Run the step 1 commands again |
-| Something else | Send Andreas the log: `cat ~/.openjarvis/.state/anders-app.log` |
+| Anders answers things nobody said (TV, background noise) | He ignores unclear speech, and follow-ups without "Hej Anders" must be about as loud as your voice. Move the TV volume down or sit closer to the mic |
+| Something else | Send Andreas the log: `~/.openjarvis/.state/anders.log` |
 
 ## 🔄 Getting updates
 
@@ -137,7 +149,8 @@ git pull
 | Folder | Contents |
 |---|---|
 | `app/` | Backend, tools, memory, alarms, system control, UI |
-| `app/roasts.txt` | The roast library |
+| `app/roasts.txt`, `app/jokes.txt` | The roast and joke libraries (one per line) |
+| `tests/` | Quick checks: `~/.openjarvis/.venv/bin/python tests/test_anders.py` |
 | `plugins/` | Wake-word listening and the bilingual voice client |
 | `chatterbox/` | The local voice server |
 | `bin/` | The `anders` and `anders-app` commands |

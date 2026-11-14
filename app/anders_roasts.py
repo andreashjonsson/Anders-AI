@@ -18,7 +18,8 @@ _YOU = re.compile(r"\b(du|dig|dej|din|ditt|dina|anders|you|your|ur|u)\b", re.I)
 # Requests and questions go to the assistant, even with an insult in them ("kan du, din idiot, sätta en timer").
 _REQUEST = re.compile(
     r"\b(kan du|kunde du|skulle du|vill du|orkar du|hjälp|berätta|säg|sätt|ställ|starta|stoppa|spela|visa|"
-    r"öppna|stäng|påminn|lägg till|sök|hur|när|vilken|vilket|vilka|vad blir|vad är klockan|hur mycket)\b", re.I)
+    r"öppna|stäng|påminn|lägg till|sök|hur|när|vilken|vilket|vilka|vad blir|vad är klockan|hur mycket|"
+    r"can you|could you|would you|please|what|how|when|where|which|tell me|set|remind|play|open)\b", re.I)
 _PRAISE = re.compile(
     r"\b(bra|bäst|bästa|grym|grymt|kul|rolig|roligt|snäll|tack|älskar|gillar|fin|fint|smart|duktig|härlig|"
     r"najs|cool|snygg|skitbra|skitkul|skitsnygg|love|great|awesome|nice|thanks)\b", re.I)
@@ -93,10 +94,10 @@ def pick_roast(text: str, lang: str = "sv") -> str | None:
     """A comeback if *text* insults Anders or asks for a roast (Swedish), else None."""
     text = (text or "").strip()
     words = re.findall(r"\w+", text)
-    if lang != "sv" or not words or len(words) > MAX_WORDS:
+    if lang not in ("sv", "en") or not words or len(words) > MAX_WORDS:
         return None
 
-    m = _ROAST_NAME.search(text)
+    m = _ROAST_NAME.search(text) if lang == "sv" else None
     if m and m.group(1) not in _NOT_A_NAME:
         line = _choose("roasta_namn")
         return line.replace("{namn}", m.group(1)) if line else None
@@ -111,5 +112,7 @@ def pick_roast(text: str, lang: str = "sv") -> str | None:
             return None  # assistant first
         if needs_aim and not aimed:
             continue
+        if lang == "en":
+            return _choose(f"english_{kind}") if _load().get(f"english_{kind}") else _choose("english")
         return _choose(kind)
     return None

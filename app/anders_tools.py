@@ -174,6 +174,30 @@ STATUS = {
 
 
 # --------------------------------------------------------------------------- helpers
+OFFLINE = ("INGET INTERNET: datorn har ingen internetanslutning just nu. Säg det ärligt till användaren "
+           "(t.ex. 'Jag kommer inte åt internet just nu') och gissa inte fram något svar.")
+_SEARCH_CACHE: dict[tuple[str, int], tuple[float, str]] = {}
+_online_state = {"t": 0.0, "ok": True}
+
+
+def online(force: bool = False) -> bool:
+    """Is there an internet connection? (DNS + TCP to a few well-known hosts; cached 30 s.)"""
+    import socket
+
+    if not force and time.time() - _online_state["t"] < 30:
+        return _online_state["ok"]
+    ok = False
+    for host in ("1.1.1.1", "8.8.8.8", "9.9.9.9"):
+        try:
+            with socket.create_connection((host, 53), timeout=1.5):
+                ok = True
+                break
+        except OSError:
+            continue
+    _online_state.update(t=time.time(), ok=ok)
+    return ok
+
+
 def now_text() -> str:
     n = dt.datetime.now().astimezone()
     week = n.isocalendar().week
@@ -342,7 +366,7 @@ class Tools:
         except TypeError as exc:
             out = {"error": f"fel argument: {exc}"}
         except httpx.HTTPError as exc:
-            out = {"error": f"nätverksfel: {exc.__class__.__name__}"}
+            out = OFFLINE if not online(force=True) else {"error": f"nätverksfel: {exc.__class__.__name__}"}
         except Exception as exc:  # noqa: BLE001 — a tool must never crash the turn
             out = {"error": str(exc)[:300]}
         return out if isinstance(out, str) else json.dumps(out, ensure_ascii=False)
@@ -474,9 +498,35 @@ class Tools:
             from openjarvis.tools.web_search import WebSearchTool
 
             self._web = WebSearchTool()
-        r = self._web.execute(query=query, max_results=max(1, min(int(max_results or 5), 8)))
-        text = (r.content or "").strip() if r.success else f"Sökningen misslyckades: {r.content}"
-        return text[:7000] or "Inga resultat."
+        query = " ".join(str(query or "").split())
+        n = max(1, min(int(max_results or 5), 8))
+        key = (query.lower(), n)
+        hit = _SEARCH_CACHE.get(key)
+        if hit and time.time() - hit[0] < 600:  # same search within 10 minutes: reuse it
+            return hit[1]
+        if not online():
+            return OFFLINE
+        text = ""
+        for attempt in range(2):  # one retry: the search engines sometimes hiccup
+            try:
+                r = self._web.execute(query=query, max_results=n)
+                text = (r.content or "").strip() if r.success else ""
+            except Exception as exc:  # noqa: BLE001
+                text = ""
+                problem = str(exc)
+            else:
+                problem = "" if r.success else str(r.content)
+            if text:
+                break
+            time.sleep(1.0)
+        if not text:
+            return OFFLINE if not online(force=True) else \
+                f"Sökningen misslyckades ({problem[:120] or 'inga resultat'}). Säg det ärligt i stället för att gissa."
+        text = text[:7000]
+        _SEARCH_CACHE[key] = (time.time(), text)
+        if len(_SEARCH_CACHE) > 100:
+            _SEARCH_CACHE.pop(next(iter(_SEARCH_CACHE)))
+        return text
 
     def t_fetch_webpage(self, url: str) -> dict:
         from openjarvis.security.ssrf import check_ssrf
