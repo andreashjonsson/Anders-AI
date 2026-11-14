@@ -1,0 +1,4 @@
+# Anders' brain: gpt-oss 20B with a longer memory window.
+FROM gpt-oss:20b
+PARAMETER num_ctx 32768
+PARAMETER temperature 1
