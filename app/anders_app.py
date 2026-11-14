@@ -476,6 +476,14 @@ class Anders:
                         args = json.loads(args)
                     except Exception:
                         args = {}
+                if name in _SCHEDULE_TOOLS and not _asked_to_schedule(msgs):
+                    # gpt-oss sometimes answers insults/banter with a reminder or timer; block that.
+                    _dbg(f"blocked {name}({args}): the user didn't ask for a timer/alarm/reminder")
+                    msgs.append({"role": "tool", "tool_name": name, "content": json.dumps({
+                        "ok": False, "fel": "Användaren bad inte om någon timer, larm eller påminnelse. "
+                        "Skapa inget. Svara i stället direkt på det användaren sa, i din vanliga stil."},
+                        ensure_ascii=False)})
+                    continue
                 on_tool(name, args)
                 result = self.tools.run(name, args)
                 _dbg(f"tool {name}({args}) -> {result[:120]!r}")
@@ -952,6 +960,21 @@ class Anders:
                 time.sleep(0.02)
                 if self.busy.is_set() or self.shutdown.is_set():
                     break
+
+
+_SCHEDULE_TOOLS = {"set_timer", "set_alarm", "set_reminder"}
+_SCHEDULE_WORDS = re.compile(
+    r"påminn|påminnelse|remind|timer|larm|alarm|väck|wake|nedräkning|countdown|"
+    r"minut|minute|sekund|second|timm|hour|klockan|o'?clock|\bkl\b|\d{1,2}[:.]\d{2}|"
+    r"imorgon|i morgon|tomorrow|ikväll|i kväll|tonight|\bom \d|\bin \d", re.I)
+
+
+def _asked_to_schedule(msgs: list) -> bool:
+    """True if the user's latest message actually asks for a timer, alarm or reminder."""
+    for m in reversed(msgs):
+        if m.get("role") == "user":
+            return bool(_SCHEDULE_WORDS.search(m.get("content") or ""))
+    return True
 
 
 def _num_ctx() -> int:
