@@ -23,7 +23,6 @@ Just say **"Hej Anders"** or **"Hey Anders"** and ask something:
 | **16 GB RAM or more** (32 GB is better) | The AI brain is big |
 | **About 40 GB free disk space** | For the AI models |
 | **A microphone and speakers** (a headset works best) | So you can talk to it |
-| **A GitHub account** that Andreas has invited | The download is private |
 
 > 💡 No NVIDIA card? Anders still starts, but answers slowly and with a more robotic voice.
 
@@ -49,7 +48,7 @@ When it asks for your password, type it and press Enter. You won't see the lette
 
 ```bash
 sudo apt update
-sudo apt install -y git curl zstd gh libportaudio2 python3-gi gir1.2-webkit2-4.1 ubuntu-drivers-common
+sudo apt install -y git curl zstd libportaudio2 python3-gi gir1.2-webkit2-4.1 ubuntu-drivers-common
 sudo ubuntu-drivers install
 ```
 
@@ -57,20 +56,8 @@ The last line installs the NVIDIA graphics driver. **Restart the computer** afte
 
 ### Step 2: Download Anders
 
-First, accept Andreas' invite: open the email from GitHub (or go to https://github.com/andreashjonsson/Anders-AI) and click **Accept invitation**.
-
-Then log in to GitHub from the terminal:
-
 ```bash
-gh auth login
-```
-
-Answer: **GitHub.com** → **HTTPS** → **Yes** → **Login with a web browser**. Copy the code it shows, press Enter, and paste the code in the browser.
-
-Now download Anders:
-
-```bash
-gh repo clone andreashjonsson/Anders-AI
+git clone https://github.com/andreashjonsson/Anders-AI.git
 ```
 
 ### Step 3: Install Anders
@@ -116,7 +103,6 @@ remember things you tell it, and answer general questions.
 | Anders doesn't hear me | Check that the right microphone is selected under **Settings → Sound** in Ubuntu |
 | Anders hears me but doesn't answer | Run `ollama list`. It should show `gpt-oss-coder`. If not, run `./install.sh` again |
 | The voice sounds robotic | The real voice needs the NVIDIA card. Check that `nvidia-smi` works, then restart the computer |
-| `gh repo clone` says "not found" | Accept Andreas' invite first (step 2), then try again |
 | The installer says "Do step 1 first" | Run the step 1 commands again |
 | Something else | Send Andreas the log: `cat ~/.openjarvis/.state/anders-app.log` |
 
