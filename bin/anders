@@ -14,7 +14,7 @@ export JARVIS_TTS_CFG=0.5            # Chatterbox: lower (e.g. 0.3) = slower, ca
 export JARVIS_TTS_EXAGGERATION=0.3   # Chatterbox: lower = calmer, slightly deeper (0.3); higher = more expressive (0.5-0.7)
 export JARVIS_TTS_WARMTH=4           # dB of bass "body" (0 = off, 4 = warmer/deeper sound, 6 = max sensible)
 export JARVIS_TTS_PITCH=0            # real pitch shift in semitones, e.g. -1.5 (lower, but slightly buzzy sound)
-# Your own voice: recorded with `anders-record-voice`, used automatically if present.
+# Anders' voice (installed by install.sh).
 VOICE_REF="$HOME/.openjarvis/voices/reference.wav"
 [[ -f "$VOICE_REF" ]] && export JARVIS_VOICE_REF="$VOICE_REF"
 export JARVIS_SV_VOICE=nst           # Piper fallback voice: nst, alma, lisa
