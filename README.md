@@ -3,11 +3,11 @@
 Anders is a voice assistant you talk to, like Siri or Alexa, but it runs **entirely on your own computer**.
 Nothing is sent to the internet. It understands and speaks both **Swedish and English**, with Andreas' voice.
 
-Just say **"Hej Anders"** or **"Hey Anders"** and ask something:
+Just say **"Tjenare"**, **"Hej Anders"** or **"Hey Anders"** and ask something:
 
 > "Hej Anders, vad blir det för väder imorgon?"
 > "Hey Anders, set a timer for 10 minutes."
-> "Hej Anders, lägg till mjölk på inköpslistan."
+> "Tjenare Anders, lägg till mjölk på inköpslistan."
 
 > ⚠️ **Please use Anders exactly as it is.** Anders is built by Andreas, with his voice and personality.
 > Don't change the code, voice or settings files. If something should be different, tell Andreas.
@@ -84,7 +84,7 @@ The **first time** takes a few minutes while the voice and hearing load. Then sa
 
 ## 🎙️ Using Anders
 
-- **Talk:** Say "Hej Anders" (Swedish) or "Hey Anders" (English), then your question. Anders replies in the same language.
+- **Talk:** Say "Tjenare" or "Hej Anders" (Swedish) or "Hey Anders" (English), then your question. Anders replies in the same language. "Tjenare" always means Swedish.
 - **Follow-up:** Right after Anders answers, you have 5 seconds to say more without "Hej Anders" again.
 - **Type:** You can also type in the chat box in the window.
 - **Weather where you live:** Click the ⚙️ gear icon and enter your home town.
@@ -107,6 +107,10 @@ sources as links under the answer. Longer answers are shown as neat lists; only 
 140+ hand-written comebacks (Swedish and English). Questions and commands are never roasted. Turn it off under ⚙️ → **Roasts**.
 
 **Singing:** ask "kan du sjunga?" and Anders recites *Ack Värmland*.
+
+**Saying bye:** "hejdå", "god natt" or "bye" gets a goodbye, and now and then a fun one ("Kryssa lugnt!", "See you later, alligator!").
+
+**Fair warning:** Anders is a Värmlänning with a loose tongue. He swears now and then ("se på fan", "jävlar"), but never when you're sad.
 
 **No internet?** Anders says so instead of guessing.
 
@@ -149,7 +153,7 @@ git pull
 | Folder | Contents |
 |---|---|
 | `app/` | Backend, tools, memory, alarms, system control, UI |
-| `app/roasts.txt`, `app/jokes.txt` | The roast and joke libraries (one per line) |
+| `app/roasts.txt`, `app/jokes.txt`, `app/goodbyes.txt` | The roast, joke and goodbye libraries (one per line) |
 | `tests/` | Quick checks: `~/.openjarvis/.venv/bin/python tests/test_anders.py` |
 | `plugins/` | Wake-word listening and the bilingual voice client |
 | `chatterbox/` | The local voice server |

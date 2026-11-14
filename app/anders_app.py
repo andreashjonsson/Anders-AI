@@ -3,7 +3,7 @@
 Runs in the OpenJarvis venv. Serves the UI (static/index.html) on
 http://127.0.0.1:8770 and talks to it over a WebSocket (/ws).
 
-Pipeline:  mic -> wake phrase "Hej/Hey Anders" -> Whisper (sv/en)
+Pipeline:  mic -> wake phrase "Tjenare" / "Hej/Hey Anders" -> Whisper (sv/en)
            -> gpt-oss via OpenJarvis' engine (streamed, with SOUL/USER persona)
            -> sentences spoken by the Chatterbox server as they arrive.
 
@@ -47,6 +47,7 @@ from anders_system import SystemControl  # noqa: E402
 import anders_songs  # noqa: E402
 import anders_roasts  # noqa: E402
 import anders_jokes  # noqa: E402
+import anders_goodbye  # noqa: E402
 import anders_hearing  # noqa: E402
 from anders_text import (_MORE, _SCHEDULE_TOOLS, _asked_to_schedule, _source_links,  # noqa: E402
                          _speakable, _unsupported_names)
@@ -186,7 +187,7 @@ class Anders:
         self.ptt = threading.Event()  # "Prata" button: listen once without wake phrase
         from collections import deque
         self.turn_sources: list[dict] = []  # web pages the current answer is based on (shown under it)
-        self.last_canned: tuple[str, float] | None = None  # ("song" | "joke" | "roast", when)
+        self.last_canned: tuple[str, float] | None = None  # ("song" | "joke" | "roast" | "goodbye", when)
         self.voice_levels: deque = deque(maxlen=20)  # loudness of recent wake-phrase utterances (the user's voice)
         self.muted = not SETTINGS["handsfree"]
         self.busy = threading.Event()  # thinking/speaking: mic is closed (no echo)
@@ -965,6 +966,8 @@ class Anders:
                 canned, kind = anders_songs.pick_song(text, force=True), "song"
             if canned is None and (song := anders_songs.pick_song(text)):
                 canned, kind = song, "song"
+            if canned is None and (bye := anders_goodbye.pick_goodbye(text, lang)):
+                canned, kind = bye, "goodbye"
             if canned is None and SETTINGS.get("jokes", True) and (joke := anders_jokes.pick_joke(text, lang)):
                 canned, kind = joke, "joke"
             if canned is None and SETTINGS.get("roasts", True) and (roast := anders_roasts.pick_roast(text, lang)):
@@ -1111,7 +1114,7 @@ class Anders:
                       + ("" if ptt else (" (följdfråga)" if lang_hint == "sv" else " (follow-up)")))
                 timeout = 6.0 if ptt else SETTINGS["followup_seconds"]
             else:
-                state("idle", 'Säg "Hej Anders" eller "Hey Anders"')
+                state("idle", 'Säg "Tjenare", "Hej Anders" eller "Hey Anders"')
                 timeout = None
             try:
                 audio = self._record(timeout)
@@ -1135,9 +1138,14 @@ class Anders:
                          level, self._usual_level())
                 continue
             state("transcribing", "Transkriberar…")
-            heard = anders_hearing.hear(models, audio, followup=bool(follow and not ptt))
+            # "Tjenare (Anders)" is always Swedish: don't let the language detection guess.
+            swedish_wake = woke and bool(hf._WAKE_SV.search(hf._state.get("wake_head") or ""))
+            heard = anders_hearing.hear(models, audio, followup=bool(follow and not ptt),
+                                        lang="sv" if swedish_wake else None)
             lang = heard.lang
             text = hf._WAKE.sub("", heard.text, count=1).strip() if woke else heard.text
+            if woke and (re.fullmatch(r"\W*and\w{0,6}\W*", text, re.I) or hf._WAKE_ALONE.match(text)):
+                text = ""  # only the (mis-heard) name or wake word left, e.g. "Andersö": nothing was asked yet
             log.info("heard %r (%s, confidence %.2f, level %.4f)%s", heard.text, lang, heard.confidence, level,
                      f" -> ignored: {heard.reason}" if not heard.ok else "")
             if woke and heard.text:

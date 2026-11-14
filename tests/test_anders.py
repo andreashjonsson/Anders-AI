@@ -9,7 +9,9 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "app"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "plugins"))
 
+import anders_goodbye  # noqa: E402
 import anders_jokes  # noqa: E402
 import anders_roasts  # noqa: E402
 import anders_songs  # noqa: E402
@@ -73,6 +75,31 @@ check("source link for the page that was used", [x["site"] for x in links] == ["
 
 # --- speech text ----------------------------------------------------------------------------------------
 check("markdown is not read aloud", _speakable("**Olssons Bazar** – [läs mer](https://x.se)") == "Olssons Bazar – läs mer")
+
+# --- goodbyes ------------------------------------------------------------------------------------------
+for text, lang in [("hejdå", "sv"), ("vi hörs", "sv"), ("god natt", "sv"), ("bye", "en"), ("see you later", "en")]:
+    check(f"goodbye: {text!r}", anders_goodbye.pick_goodbye(text, lang) is not None)
+for text, lang in [("vad betyder hej då på engelska?", "sv"), ("säg hej då till Lisa", "sv"), ("later today I need a timer", "en")]:
+    check(f"no goodbye: {text!r}", anders_goodbye.pick_goodbye(text, lang) is None)
+
+# --- wake phrases ----------------------------------------------------------------------------------------
+import re  # noqa: E402
+
+_src = (Path(__file__).resolve().parent.parent / "plugins" / "jarvis_handsfree.py").read_text(encoding="utf-8")
+_ns: dict = {"re": re, "os": __import__("os")}
+exec("\n".join(l for l in _src.splitlines() if l.startswith(("_NAME", "_GREETING", "_TJENA", "_WAKE"))
+               or l.startswith(" " * 19 + "rf") or l.startswith(" " * 22 + "r\"")), _ns)
+
+
+def wakes(t: str) -> bool:
+    return bool(_ns["_WAKE"].search(t) or _ns["_WAKE_ALONE"].match(t))
+
+
+for text in ["Tjenare Anders, vad är klockan?", "Tjenare!", "tjena anders", "Hej Anders", "Hey Anders", "senare Anders"]:
+    check(f"wakes: {text!r}", wakes(text))
+for text in ["vi ses senare", "min tränare sa", "jag är din tjänare", "vi var på bio"]:
+    check(f"doesn't wake: {text!r}", not wakes(text))
+check("Tjenare means Swedish", bool(_ns["_WAKE_SV"].search("Tjenare Anders")))
 
 print(f"\n{'Alla tester gick igenom' if not FAILS else f'{len(FAILS)} test(er) misslyckades'}.")
 sys.exit(1 if FAILS else 0)

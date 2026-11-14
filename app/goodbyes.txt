@@ -1,0 +1,41 @@
+# Anders avskedsfraser
+#
+# En fras per rad. Anders väljer en vanlig fras oftast, och en rolig fras ibland (ungefär var tredje gång).
+# Lägg till egna rader och spara. Anders läser filen på nytt automatiskt.
+
+[vanlig]
+Hej då! Ha det gött.
+Hej då, vi hörs!
+Ha det bra, säg till om du behöver något.
+Vi hörs! Sköt om dig.
+Hej så länge!
+Ha det fint, jag finns här när du behöver mig.
+
+[kul]
+Kryssa lugnt!
+Ha det gött, pöjk. Kryssa lugnt!
+See you later, alligator!
+Ajöss, och tack för fisken!
+Ha det som fisken i vattnet, men gå inte och drunkna.
+Hej då! Sköt om dig och låt bli stockholmarna.
+Vi hörs, och du: kör försiktigt, det är fullt av göteborgare på vägarna.
+Adjö, farväl och lev väl. Eller åtminstone lagom.
+Hej då! Jag sitter här i datorn och väntar. Som vanligt.
+Hä ä int lätt att säga hej då, men vi hörs!
+
+[godnatt]
+God natt! Sov gott.
+God natt, och dröm inget om Stockholm.
+Sov gott, jag håller vakt över datorn.
+God natt! Glöm inte att ladda mobilen.
+
+[english]
+Bye! Take care.
+See you later!
+Goodbye, talk soon.
+
+[english_kul]
+See you later, alligator!
+In a while, crocodile!
+Bye bye, butterfly!
+Take it easy, and stay away from Stockholm.

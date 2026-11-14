@@ -65,9 +65,9 @@ def _language_probs(models: dict[str, Any], audio: Any) -> tuple[float, float]:
         return 1.0, 0.0
 
 
-def hear(models: dict[str, Any], audio: Any, *, followup: bool = False) -> Heard:
-    """Transcribe *audio* (16 kHz float32). Check .ok before using .text."""
-    p_sv, p_en = _language_probs(models, audio)
+def hear(models: dict[str, Any], audio: Any, *, followup: bool = False, lang: str | None = None) -> Heard:
+    """Transcribe *audio* (16 kHz float32). Check .ok before using .text. *lang* forces a language."""
+    p_sv, p_en = (1.0, 0.0) if lang == "sv" else (0.0, 1.0) if lang == "en" else _language_probs(models, audio)
     if p_sv >= SURE_LANG:
         candidates = [_transcribe(models, audio, "sv")]
     elif p_en >= SURE_LANG:

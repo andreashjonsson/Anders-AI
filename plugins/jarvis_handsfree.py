@@ -41,7 +41,14 @@ _models_lock = threading.Lock()
 
 _NAME = os.environ.get("ANDERS_WAKE_NAMES", r"and(?:e|é)?r?s")
 _GREETING = r"(?:hej|hey|hei|hai|hi|hallå|hallo|hejsan|okej|ok)"
-_WAKE = re.compile(rf"^\W*(?:\w+\W+){{0,2}}?{_GREETING}\W+(?:{_NAME})\b\W*", re.I)
+# "Tjenare" (or "Tjenare Anders") also wakes Anders, and is always Swedish. Whisper writes it in a few ways.
+_TJENA = r"(?:tj[eäé]n(?:a|are|ar|aste|ixen|is|asåmycke)|ch[eäé]nare|kj[eäé]nare|sj[eä]nare|trenare)"
+_WAKE = re.compile(rf"^\W*(?:\w+\W+){{0,2}}?(?:{_GREETING}\W+(?:{_NAME})|{_TJENA}(?:\W+(?:{_NAME}))?"
+                   rf"|(?:senare|tjänare)\W+(?:{_NAME}))\b\W*", re.I)
+_WAKE_SV = re.compile(rf"^\W*(?:\w+\W+){{0,2}}?(?:{_TJENA}\b|(?:senare|tjänare)\W+(?:{_NAME})\b)"
+                      r"|^\W*(?:senare|tjänare)\W*$", re.I)
+# A lone "Tjenare!" is sometimes heard as "senare"/"tjänare": accept those only as the whole utterance.
+_WAKE_ALONE = re.compile(r"^\W*(?:senare|tjänare)\W*$", re.I)
 
 _MSG = {
     "sv": {"listen": "Lyssnar… (prata nu)", "trans": "Transkriberar…", "nothing": "Hörde inget — försök igen.",
@@ -168,7 +175,8 @@ def _is_wake(models: dict[str, Any], audio: Any) -> bool:
         condition_on_previous_text=False, without_timestamps=True,
     )
     head = "".join(s.text for s in segs).strip()
-    return bool(_WAKE.search(head))
+    _state["wake_head"] = head  # lets the app see which wake phrase was used ("Tjenare" = Swedish)
+    return bool(_WAKE.search(head) or _WAKE_ALONE.match(head))
 
 
 # ---------------------------------------------------------------------------
