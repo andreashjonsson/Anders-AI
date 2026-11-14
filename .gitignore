@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+# personal data - never commit
+*.wav
+*.db
+*.jsonl
+conversations/
+USER.md
+reference*.wav
+!voices/reference.wav

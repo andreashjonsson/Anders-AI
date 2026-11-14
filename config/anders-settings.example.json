@@ -1,0 +1,14 @@
+{
+  "handsfree": true,
+  "followup_seconds": 5.0,
+  "silence_seconds": 1.5,
+  "warmth": 4.0,
+  "exaggeration": 0.3,
+  "pitch": 0.0,
+  "speak_replies": true,
+  "model": "gpt-oss-coder:latest",
+  "reasoning": "low",
+  "memory": true,
+  "home_location": "",
+  "tools": true
+}

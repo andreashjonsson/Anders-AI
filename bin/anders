@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# Anders launcher: hands-free voice chat ("Hej Anders" = svenska, "Hey Anders" = English), gpt-oss-coder,
+# Swedish + English, natural Chatterbox voice on the GPU.
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+export PYTHONWARNINGS=ignore HF_HUB_DISABLE_TELEMETRY=1 TRANSFORMERS_VERBOSITY=error
+export JARVIS_SKIP_MODEL_PICK=1 JARVIS_SKIP_RUNTIME_PANEL=1
+
+# ---- voice settings (edit me) ----
+export JARVIS_HANDSFREE=1            # 1 = wake phrase "Hej/Hey Anders", 0 = press Enter to speak
+export JARVIS_FOLLOWUP_SECONDS=5     # listen this long for a follow-up without the wake word
+export JARVIS_SILENCE_SECONDS=1.0    # pause length that ends your sentence
+export JARVIS_TTS_ENGINE=chatterbox  # chatterbox (natural, GPU) or piper (robotic, fast CPU)
+export JARVIS_TTS_CFG=0.5            # Chatterbox: lower (e.g. 0.3) = slower, calmer delivery
+export JARVIS_TTS_EXAGGERATION=0.3   # Chatterbox: lower = calmer, slightly deeper (0.3); higher = more expressive (0.5-0.7)
+export JARVIS_TTS_WARMTH=4           # dB of bass "body" (0 = off, 4 = warmer/deeper sound, 6 = max sensible)
+export JARVIS_TTS_PITCH=0            # real pitch shift in semitones, e.g. -1.5 (lower, but slightly buzzy sound)
+# Your own voice: recorded with `anders-record-voice`, used automatically if present.
+VOICE_REF="$HOME/.openjarvis/voices/reference.wav"
+[[ -f "$VOICE_REF" ]] && export JARVIS_VOICE_REF="$VOICE_REF"
+export JARVIS_SV_VOICE=nst           # Piper fallback voice: nst, alma, lisa
+
+CB_DIR="$HOME/.openjarvis/chatterbox"
+CB_LOG="$HOME/.openjarvis/.state/chatterbox.log"
+CB_PID=""
+if [[ "$JARVIS_TTS_ENGINE" == "chatterbox" && -x "$CB_DIR/.venv/bin/python" ]]; then
+    if ! curl -sf http://127.0.0.1:${JARVIS_TTS_PORT:-8765}/health >/dev/null 2>&1; then
+        # Free the GPU first so the voice gets its ~3.3 GB before the LLM loads.
+        for m in $(ollama ps 2>/dev/null | awk 'NR>1{print $1}'); do
+            curl -s http://127.0.0.1:11434/api/generate -d "{\"model\":\"$m\",\"keep_alive\":0}" >/dev/null 2>&1
+        done
+        mkdir -p "$(dirname "$CB_LOG")"
+        "$CB_DIR/.venv/bin/python" -I "$CB_DIR/server.py" >"$CB_LOG" 2>&1 &
+        CB_PID=$!
+        cleanup() { [[ -n "$CB_PID" ]] && kill "$CB_PID" 2>/dev/null; CB_PID=""; }
+        trap cleanup EXIT
+        trap 'cleanup; exit 129' HUP
+        trap 'cleanup; exit 143' TERM
+        echo "Startar rösten (Chatterbox)… första svaret kan ta en stund."
+    fi
+    export JARVIS_TTS_WAIT=90
+fi
+
+ARGS=(chat -m gpt-oss-coder --skip-runtime-panel)
+if "$HOME/.openjarvis/.venv/bin/python" -I -c "import sounddevice" >/dev/null 2>&1; then
+    ARGS+=(--voice)
+else
+    echo "Voice is off: the PortAudio audio library is missing."
+    echo "Fix with:  sudo apt install -y libportaudio2   (then reopen Jarvis)"
+    echo
+fi
+jarvis "${ARGS[@]}" "$@"
+echo; read -rp "Anders avslutades. Tryck Enter för att stänga fönstret..." _

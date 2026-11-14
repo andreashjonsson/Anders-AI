@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Turn a photo into Anders' round logo (app menu icon).
+#   anders-set-logo              -> uses your newest photo (Snapshot saves to ~/Pictures/Camera)
+#   anders-set-logo bild.jpg     -> uses that file
+set -euo pipefail
+PY="$HOME/.openjarvis/tools/.venv/bin/python"
+PICS="$(xdg-user-dir PICTURES 2>/dev/null || echo "$HOME/Pictures")"
+SRC="${1:-}"
+if [[ -z "$SRC" ]]; then
+    SRC="$(find "$PICS" -maxdepth 2 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) \
+           -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -1 | cut -d' ' -f2-)"
+fi
+if [[ -z "$SRC" || ! -f "$SRC" ]]; then
+    echo "Hittade ingen bild. Ta en selfie med appen Kamera (Snapshot), eller ange en fil: anders-set-logo /sökväg/bild.jpg"
+    exit 1
+fi
+echo "Använder bild: $SRC"
+
+ICON_DIR="$HOME/.local/share/icons"; mkdir -p "$ICON_DIR"
+OUT="$ICON_DIR/anders-$(date +%s).png"   # new name each time so GNOME refreshes the icon
+"$PY" -I - "$SRC" "$OUT" <<'PYEOF'
+import sys, cv2, numpy as np
+from PIL import Image, ImageDraw, ImageOps
+src, out = sys.argv[1], sys.argv[2]
+img = ImageOps.exif_transpose(Image.open(src)).convert("RGB")   # respect phone rotation
+w, h = img.size
+gray = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2GRAY)
+cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=6, minSize=(max(40, w // 12),) * 2)
+if len(faces):
+    x, y, fw, fh = max(faces, key=lambda f: f[2] * f[3])
+    cx, cy = x + fw / 2, y + fh / 2 + fh * 0.12        # a bit lower: include chin/neck
+    side = min(max(fw, fh) * 2.0, w, h)
+    print(f"  Ansikte hittat – centrerar logotypen på det.")
+else:
+    cx, cy, side = w / 2, h / 2, min(w, h)
+    print("  Inget ansikte hittades – använder bildens mitt.")
+left = int(min(max(cx - side / 2, 0), w - side)); top = int(min(max(cy - side / 2, 0), h - side))
+sq = img.crop((left, top, left + int(side), top + int(side))).resize((512, 512), Image.LANCZOS)
+# round icon with a thin ring
+mask = Image.new("L", (512 * 4, 512 * 4), 0); ImageDraw.Draw(mask).ellipse((8, 8, 512 * 4 - 8, 512 * 4 - 8), fill=255)
+mask = mask.resize((512, 512), Image.LANCZOS)
+icon = Image.new("RGBA", (512, 512)); icon.paste(sq, (0, 0), mask)
+ring = Image.new("RGBA", (512 * 4, 512 * 4)); ImageDraw.Draw(ring).ellipse((8, 8, 512 * 4 - 8, 512 * 4 - 8), outline=(64, 156, 255, 255), width=40)
+icon = Image.alpha_composite(icon, ring.resize((512, 512), Image.LANCZOS))
+icon.save(out)
+PYEOF
+
+DESK="$HOME/.local/share/applications/anders.desktop"
+OLD="$(grep -oP '^Icon=\K.*' "$DESK" || true)"
+sed -i "s|^Icon=.*|Icon=$OUT|" "$DESK"
+[[ -f "$HOME/.local/share/applications/anders-terminal.desktop" ]] && sed -i "s|^Icon=.*|Icon=$OUT|" "$HOME/.local/share/applications/anders-terminal.desktop"
+[[ "$OLD" == "$ICON_DIR"/anders-*.png && "$OLD" != "$OUT" ]] && rm -f "$OLD"
+update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
+echo "Klart! Ny logotyp: $OUT"
+echo "Den syns i appmenyn direkt (annars efter ut-/inloggning)."
+xdg-open "$OUT" >/dev/null 2>&1 &

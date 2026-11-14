@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Anders
+Comment=Din lokala AI-assistent — säg "Hej Anders" eller "Hey Anders"
+Exec=@HOME@/.local/bin/anders-app
+Icon=@HOME@/.local/share/icons/anders.png
+Terminal=false
+StartupWMClass=anders
+Categories=Utility;
+Keywords=ai;assistant;anders;jarvis;voice;röst;

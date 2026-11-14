@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Anders (terminal)
+Comment=Anders i terminalläge
+Exec=ptyxis --new-window --title=Anders -- @HOME@/.local/bin/anders
+Icon=@HOME@/.local/share/icons/anders.png
+Terminal=false
+Categories=Utility;

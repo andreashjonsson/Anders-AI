@@ -1,0 +1,35 @@
+# OpenJarvis configuration
+# Hardware: Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz (16 cores, 30.5 GB RAM)
+# GPU: Quadro RTX 4000 (8.0 GB VRAM)
+# Full reference config: jarvis init --full
+
+installed_at = "2026-11-10T16:03:02Z"
+installer_version = "1.0.0"
+
+[engine]
+default = "ollama"
+
+[engine.ollama]
+# host = "http://localhost:11434"  # set to remote URL if engine runs elsewhere
+
+[intelligence]
+default_model = "gpt-oss-coder"
+
+[agent]
+default_agent = "simple"
+
+[tools]
+enabled = ["code_interpreter", "web_search", "file_read", "shell_exec"]
+
+[tools.storage]
+enabled = true
+[analytics]
+enabled = false
+
+[speech]
+backend = "kb-whisper"
+model = "KBLab/kb-whisper-small"
+device = "cpu"
+compute_type = "int8"
+tts_backend = "bilingual"
+voice_id = "bm_george"

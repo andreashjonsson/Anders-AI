@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# Anders desktop app: voice server (GPU) -> backend (LLM + listening) -> window.
+# Closing the window stops everything.
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+export PYTHONWARNINGS=ignore HF_HUB_DISABLE_TELEMETRY=1 TRANSFORMERS_VERBOSITY=error TQDM_DISABLE=1
+OJ="$HOME/.openjarvis"
+STATE="$OJ/.state"; mkdir -p "$STATE"
+PORT="${ANDERS_APP_PORT:-8770}"
+
+# Same voice defaults as the terminal version (the app's settings panel overrides them).
+export JARVIS_TTS_ENGINE=chatterbox JARVIS_TTS_CFG=0.5 JARVIS_SV_VOICE=nst
+VOICE_REF="$OJ/voices/reference.wav"
+[[ -f "$VOICE_REF" ]] && export JARVIS_VOICE_REF="$VOICE_REF"
+
+# Already running? Just show it.
+if curl -sf "http://127.0.0.1:$PORT/" >/dev/null 2>&1; then
+    exec /usr/bin/python3 "$OJ/app/window.py" "http://127.0.0.1:$PORT/"
+fi
+
+PIDS=()
+cleanup() { for p in "${PIDS[@]}"; do kill "$p" 2>/dev/null; done; wait 2>/dev/null; }
+trap cleanup EXIT
+trap 'exit 129' HUP
+trap 'exit 143' TERM INT
+
+# 1) Voice server first, so it gets its GPU memory before the language model loads.
+if ! curl -sf http://127.0.0.1:8765/health >/dev/null 2>&1 && [[ -x "$OJ/chatterbox/.venv/bin/python" ]]; then
+    for m in $(ollama ps 2>/dev/null | awk 'NR>1{print $1}'); do
+        curl -s http://127.0.0.1:11434/api/generate -d "{\"model\":\"$m\",\"keep_alive\":0}" >/dev/null 2>&1
+    done
+    # Ollama confirms the unload before the GPU memory is actually released: wait until
+    # there is room for the voice (~3.8 GB), at most 30 s. Starting too early = "CUDA out of memory".
+    for i in $(seq 60); do
+        free=$(nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits 2>/dev/null | head -1)
+        [[ -z "$free" || "$free" -ge 3800 ]] && break
+        sleep 0.5
+    done
+    "$OJ/chatterbox/.venv/bin/python" -I "$OJ/chatterbox/server.py" >"$STATE/chatterbox.log" 2>&1 &
+    PIDS+=($!)
+fi
+export JARVIS_TTS_WAIT=120
+
+# 2) Backend (listening, language model, speech).
+"$OJ/.venv/bin/python" "$OJ/app/anders_app.py" >"$STATE/anders-app.log" 2>&1 &
+PIDS+=($!)
+
+# 3) Window (blocks until closed). NVIDIA + WebKitGTK can show a blank window with the
+#    DMA-BUF renderer, so it is disabled; if the window still crashes at start, retry in software mode.
+ICON="$(grep -oP '^Icon=\K.*' "$HOME/.local/share/applications/anders.desktop" 2>/dev/null)"
+export WEBKIT_DISABLE_DMABUF_RENDERER=1
+start=$(date +%s)
+/usr/bin/python3 "$OJ/app/window.py" "http://127.0.0.1:$PORT/" "$ICON" 2>"$STATE/anders-window.log"
+if [[ $? -ne 0 && $(( $(date +%s) - start )) -lt 8 ]]; then
+    WEBKIT_DISABLE_COMPOSITING_MODE=1 /usr/bin/python3 "$OJ/app/window.py" "http://127.0.0.1:$PORT/" "$ICON" 2>>"$STATE/anders-window.log"
+fi
