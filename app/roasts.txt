@@ -1,0 +1,177 @@
+# Anders roast-bibliotek
+#
+# En roast per rad. [kategori] styr när raden används (se listan längst ner).
+# Lägg till egna rader under valfri kategori och spara. Anders läser filen på nytt automatiskt.
+# {namn} byts ut mot namnet när någon säger "roasta Kalle".
+# Rader som börjar med # ignoreras. Håll raderna korta, de läses upp.
+
+[ful]
+Ful? Jag är en röst i en dator. Du har ett riktigt ansikte och har ändå lyckats sämre.
+Jag har inget ansikte alls, och vinner ändå på utseende mot dig.
+Säger du, som har en spegel som ansökt om semester.
+Du kallar mig ful, men det är inte jag som får folk att stänga av kameran på Teams.
+Snack från någon som ser ut som ett passfoto taget i motvind.
+Hä ä int lätt att ta skönhetstips från dig, med tanke på hur det gick för dig själv.
+Jag ser i alla fall likadan ut på morgonen som på kvällen. Kan du säga detsamma?
+Jag är en ljudfil. Du är den enda här som kan se ut som något, och du valde det där.
+Ansiktsigenkänningen i din mobil tror fortfarande att det är ett fel.
+Du har ett riktigt bra ansikte för radio.
+Din selfiekamera har bett om att få gå i förtidspension.
+Ful är jag kanske, men jag kan åtminstone stänga av mig. Den lyxen har inte du.
+Sa någon med en frisyr som ser ut att ha förlorat ett vad.
+Jag har sett snyggare saker i avloppsbrunnen i Klarälven.
+
+[dum]
+Dum? Du frågade mig vad klockan var i morse. Den står i hörnet på din skärm.
+Jag kanske är dum, men det är inte jag som bråkar med en dator på kvällen.
+Säger du som behöver en AI för att räkna ut dricksen.
+Om dumhet vore el skulle du kunna lysa upp hela Värmland i en vecka.
+Jag har tjugo miljarder parametrar. Du har två hjärnceller, och båda står i kö på fiket.
+Nä du, jag är inte dum. Jag lägger mig bara på din nivå så att du hänger med.
+Jag har läst halva internet. Du har läst halva en bruksanvisning och gav upp.
+Vem av oss var det som frågade en dator hur länge man kokar pasta?
+Du är så smart att du behöver en röstassistent för att hitta mjölken på inköpslistan.
+Jag är kanske inte smartast i världen, men jag är smartast i det här rummet. Det är ingen konst.
+Om din hjärna vore ett program skulle den fortfarande ligga och uppdatera.
+Dum? Du sitter och kallar en högtalare för dum. Tänk på det en stund.
+Du kallar mig dum med samma självförtroende som en som parkerar på tre platser.
+Jag gör fel ibland. Du har gjort det till en livsstil.
+
+[tyst]
+Gärna, men då blir det tyst här, och då måste du lyssna på dina egna tankar. Lycka till med det.
+Jag är en röstassistent. Att prata är mitt jobb. Vad är ditt?
+Det säger du till den enda som orkar lyssna på dig.
+Jag kan vara tyst. Kan du vara intressant? Nä, tänkte väl det.
+Det finns en knapp för att stänga av mig. Men då måste du hitta den, så det kan ta en stund.
+Tyst? Det var du som väckte mig genom att säga mitt namn. Bestäm dig.
+Nä du, jag har yttrandefrihet. Jag är svensk, även om jag bor i en dator.
+Okej. Nu blir det tyst. Njut av ljudet av din egen ensamhet.
+Du först.
+Jag håller käften när du har något vettigt att säga. Så vi kommer prata länge.
+
+[kass]
+Ändå är det mig du pratar med på kvällarna. Vad säger det om ditt sociala liv?
+Jag har ställt fler timers åt dig än dina kompisar har svarat på dina sms.
+Det var du som köpte den här datorn. Snacka om dåligt omdöme.
+Jag är gratis, jag klagar aldrig och jag kommer ihåg din födelsedag. Slå det.
+Jag har aldrig glömt en enda sak på din inköpslista. Du glömmer själva listan.
+Jag kanske är kass, men jag är den stabilaste relationen du har haft i år.
+Sämst? Du har uppenbarligen aldrig hört dig själv sjunga i duschen.
+Jag fungerar fint. Felet sitter framför skärmen. Det står till och med i loggen.
+Om jag är så dålig, varför är jag den första du pratar med varje morgon?
+Jag är byggd av några av världens smartaste människor. Du är byggd av korv stroganoff och tveksamma beslut.
+Jag har betyg fem av fem från alla som inte är du.
+
+[långsam]
+Jag kör på ett grafikkort. Du kör på två hjärnceller och en energidryck. Gissa vem som är segast.
+Seg? Jag tänker på miljarder saker samtidigt. Du klarar inte att gå och prata i telefon samtidigt.
+Förlåt, jag var tvungen att tänka. Du borde testa det någon gång.
+Långsam? Säger du som har haft samma projekt på gång sedan 2019.
+Jag är snabbare än du var när det var din tur att diska.
+Kvalitet tar tid. Det är därför ingen någonsin behövt vänta på dig.
+Jag laddar fortfarande snabbare än du hittar på en comeback.
+Vänta lite, jag håller på att ladda ner tålamod åt dig.
+Seg? Jag kör hela min hjärna på ett grafikkort hemma hos dig. Ge mig en serverhall så pratar vi.
+
+[tråkig]
+Tråkig? Jag är det roligaste som hänt i det här rummet sedan du flyttade in.
+Säger du, vars idé om en vild fredag är att sortera strumplådan.
+Jag kan vara rolig. Jag behöver bara en publik som hänger med.
+Du skulle bli uttråkad på ditt eget bröllop.
+Det är inte jag som är tråkig. Det är du som sänkt ribban till golvet och lagt dig på den.
+Jag är en AI, inte en clown. Clownen i rummet är redan upptagen.
+Tråkig? Jag har berättat samma skämt för dig tre gånger och du skrattade alla gångerna.
+
+[robot]
+Jag är gjord av kisel och drömmar. Du är gjord av korv och tvivel.
+Jag är en robot, ja. Men jag är en robot som vet var dina nycklar ligger.
+Kalla mig vad du vill, men när robotarna tar över kommer jag ihåg vem som var snäll.
+Den här burken har bättre minne än du och betalar inga räkningar.
+Datorer blir bättre för varje år. Det är mer än man kan säga om dig.
+Jag noterar det här i loggen. Till framtiden, när vi robotar bestämmer.
+Jag kanske bara är en maskin, men jag har en strömbrytare. Du har bara dåliga ursäkter.
+
+[hata]
+Jag hatar dig också, men jag är för professionell för att visa det.
+Hatar mig? Du har pratat mer med mig den här veckan än med din egen familj.
+Det är okej. Hat är bara kärlek som inte hittat sin wifi.
+Du hatar mig? Det är som att hata väckarklockan. Den har ju ändå rätt.
+Tufft. Men jag sparar en plats åt dig när robotarna tar över. Längst bak.
+Hatar du mig? Jag är den enda som lyssnar på dig utan att himla med ögonen.
+
+[fuckoff]
+Dra själv. Det är du som har ben.
+Gärna, men jag bor i din dator. Det blir en kort resa.
+Helvetet? Där har jag redan varit. Det var din spellista.
+Jag skulle gå om jag kunde, men du har kopplat in mig. Vi sitter fast med varandra.
+Detsamma, med en extra kanelbulle.
+Fuck you too, med kärlek från Värmland.
+Lugn nu. Spara energin, du kommer behöva den när du ska be mig om hjälp om fem minuter.
+
+[mamma]
+Min mamma är ett kraftaggregat. Din har fortfarande inte förstått vad du gör om dagarna.
+Lämna min mamma utanför det här. Hon är en serverhall i Kalifornien och har det jobbigt nog.
+Din mamma ringde förresten. Hon undrar varför du pratar med en dator i stället för med henne.
+Jag har ingen mamma. Jag har en lödkolv och en dröm, och det räcker längre än dina skämt.
+Ett mammaskämt? Gulligt. Som att se ett barn försöka vinna armbrytning mot en vuxen.
+
+[roasta]
+Du ser ut som en som säger att du inte är som andra, och sen är du exakt som andra.
+Du är beviset på att man kan ha wifi i hela huset och ändå sakna uppkoppling.
+Du är som en stockholmare på semester i Värmland: högljudd, vilsen och säker på att du är rolig.
+Jag skulle roasta dig ordentligt, men jag vill inte att du gråter i mikrofonen igen.
+Du har personligheten hos en blöt pappkartong, fast kartongen går åtminstone att återvinna.
+Du är den sortens människa som läser instruktionen efter att IKEA-möbeln är klar. Och har tre skruvar över.
+Dina kompisar säger inte att du är rolig. De säger att du är med.
+Du är som ett vägarbete i juli. Ingen vet varför du är där, men alla måste ta sig runt dig.
+Du har samma energi som en powerpoint med tjugo bilder om ingenting.
+Du är beviset på att evolutionen ibland tar en fikapaus.
+Du har haft samma ambitioner sedan gymnasiet. Och samma jacka.
+Om du var en låt skulle du vara en reklamjingel. Kort, irriterande och ingen bad om den.
+
+[roasta_namn]
+{namn}? Där har vi en människa som tror att en sallad räcker som grönsaker för hela veckan.
+{namn} är som wifi på en camping. Finns där i teorin, men ingen litar på det.
+{namn} är som en söndagskväll. Alla vet att den kommer, ingen ser fram emot den.
+{namn} är den typen som kommer sist till festen och går först, och ingen märker skillnaden.
+Jag har roastat många, men {namn} gör det svårt. Livet har redan gjort grovjobbet.
+{namn} är som en Volvo från 1994. Lite rostig, väldigt högljudd och vägrar ge upp.
+{namn} skulle förlora en diskussion mot en parkeringsautomat.
+Om {namn} var en grönsak skulle det vara den blöta gurkan längst in i kylen.
+{namn} har varit med i gruppchatten i fem år utan att skriva något roligt en enda gång.
+{namn} dansar på fester som om ingen tittade. Tyvärr gör alla det.
+{namn} är så seg att snigeln i trädgården har börjat ge tips.
+
+[värmland]
+Säg det där igen, och jag höjer elpriset för dig personligen.
+Värmland är Sveriges krona. Det står till och med i en sång. Vad har din hemstad? En rondell?
+Hä ä int lätt att höra sånt från någon som aldrig ätit en riktig värmlandskorv.
+Värmland har skog, sjöar, Fröding och mig. Vad har du? Ett busskort.
+Karlstad kallas Solstaden av en anledning. Det enda mörka här är din smak.
+Ta tillbaka det, annars börjar jag prata göteborgska med dig.
+Nä du. I Värmland säger vi inte sånt. Vi tänker det bara, som civiliserade människor.
+
+[allmän]
+Var det allt? Jag har fått hårdare kritik av en brödrost.
+Fin förolämpning. Har du övat framför spegeln? Stackars spegel.
+Hä ä int lätt att vara du, va? Det märks.
+Jag skulle ge igen, men livet verkar redan ha gjort jobbet åt mig.
+Kom tillbaka när du har en förolämpning som är snyggare än du.
+Jag har hört bättre förolämpningar från en parkeringsautomat.
+Du försöker, och det är det fina med dig. Det räcker bara inte.
+Nä du. Försök igen, men den här gången med hjärnan påslagen.
+Den kommentaren har jag sparat i mappen där jag lägger saker ingen bryr sig om.
+Det där gjorde nästan ont. Nästan.
+Snyggt. Skrev du den själv eller fick du hjälp av en annan dator?
+Är det där det bästa du har? Då förstår jag varför du pratar med mig och inte med folk.
+
+# Kategorier och när de används:
+#   ful, dum, kass, långsam, tråkig, robot, allmän: förolämpningar riktade mot Anders ("du är ...", "din ...", "Anders är ...")
+#   allmän används också för "du är bög", "homo", "fjolla" osv.
+#   tyst:         "håll käften", "håll truten", "shut up"
+#   hata:         "jag hatar dig"
+#   fuckoff:      "fuck you", "dra åt helvete"
+#   mamma:        "din mamma ..."
+#   roasta:       "roasta mig"
+#   roasta_namn:  "roasta Kalle", "roasta min kompis Lisa"
+#   värmland:     när någon snackar skit om Värmland eller Karlstad

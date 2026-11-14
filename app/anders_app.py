@@ -44,6 +44,8 @@ from anders_memory import Memory, summaries_block  # noqa: E402
 import anders_tools  # noqa: E402
 from anders_alarms import Scheduler, fmt_duration  # noqa: E402
 from anders_system import SystemControl  # noqa: E402
+import anders_songs  # noqa: E402
+import anders_roasts  # noqa: E402
 
 import faulthandler  # noqa: E402
 import signal  # noqa: E402
@@ -74,6 +76,7 @@ DEFAULTS = {
     "computer_control": True,  # volume, brightness, apps, media, shut down (with confirmation) …
     "tools": True,  # internet, weather, time, location, calculator
     "home_location": "",  # e.g. "Karlstad"; empty = approximate location from the IP address
+    "roasts": True,  # hand-written comebacks when someone insults Anders (roasts.txt)
 }
 _ENV_MAP = {
     "warmth": "JARVIS_TTS_WARMTH",
@@ -825,7 +828,13 @@ class Anders:
                 state("thinking", label)
                 BUS.emit({"type": "tool", "name": name, "args": args, "label": label})
 
-            reply = self._chat(messages, on_token, on_tool)
+            # Songs and comebacks are hand-written: the language model isn't funny in Swedish.
+            canned = anders_songs.pick_song(text) or (anders_roasts.pick_roast(text, lang) if SETTINGS.get("roasts", True) else None)
+            if canned is not None:
+                on_token(canned)
+                reply = canned
+            else:
+                reply = self._chat(messages, on_token, on_tool)
         except Exception as exc:
             reply = buf["text"]
             BUS.emit({"type": "info", "text": f"Språkmodellen svarade inte: {exc}"})

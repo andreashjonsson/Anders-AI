@@ -72,7 +72,11 @@ uv pip install -q --no-deps --python "$OJ/chatterbox/.venv/bin/python" \
 step "6/7 Anders"
 mkdir -p "$OJ/app/static" "$OJ/plugins" "$OJ/voices/piper" "$HOME/.local/bin" \
          "$HOME/.local/share/applications" "$HOME/.local/share/icons"
-cp "$HERE"/app/*.py "$OJ/app/"
+for f in "$HERE"/app/*.py; do
+    # Keep your own song list if you have one.
+    [[ "$(basename "$f")" == anders_songs.py && -f "$OJ/app/anders_songs.py" ]] || cp "$f" "$OJ/app/"
+done
+cp "$HERE/app/roasts.txt" "$OJ/app/"
 cp "$HERE"/app/static/* "$OJ/app/static/"
 cp "$HERE"/plugins/*.py "$OJ/plugins/"
 cp "$HERE"/chatterbox/server.py "$OJ/chatterbox/"

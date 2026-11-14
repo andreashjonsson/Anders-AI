@@ -94,6 +94,11 @@ The **first time** takes a few minutes while the voice and hearing load. Then sa
 Things Anders can do: weather, timers and alarms, shopping/to-do lists, electricity prices, open apps,
 remember things you tell it, and answer general questions.
 
+**Roasts:** insult Anders ("du är dum", "håll käften") or say "roasta mig" / "roasta Kalle" and he hits back with one of
+130+ hand-written comebacks. Questions and commands are never roasted. Turn it off under ⚙️ → **Roasts**.
+
+**Singing:** ask "kan du sjunga?" and Anders recites *Ack Värmland*.
+
 ---
 
 ## 🆘 Something's not working?
@@ -132,6 +137,7 @@ git pull
 | Folder | Contents |
 |---|---|
 | `app/` | Backend, tools, memory, alarms, system control, UI |
+| `app/roasts.txt` | The roast library |
 | `plugins/` | Wake-word listening and the bilingual voice client |
 | `chatterbox/` | The local voice server |
 | `bin/` | The `anders` and `anders-app` commands |

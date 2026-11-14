@@ -244,6 +244,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
     <div class="field"><div class="switch"><label for="computer_control">Styra datorn</label><input type="checkbox" id="computer_control"></div>
       <p>Volym, ljusstyrka, musik, öppna/stänga program, mörkt läge, stör ej, lås, vila. Stänga av, starta om, logga ut och
         stänga program kräver alltid att du själv bekräftar.</p></div>
+    <div class="field"><div class="switch"><label for="roasts">Roasts</label><input type="checkbox" id="roasts"></div>
+      <p>Anders ger igen med en roast när någon förolämpar honom. Frågor och kommandon påverkas aldrig.</p></div>
     <div class="field"><div class="switch"><label for="memory">Minne</label><input type="checkbox" id="memory"></div>
       <p>Anders kommer ihåg fakta om dig och vad ni pratat om tidigare. Allt sparas bara på den här datorn.</p>
       <button class="btn" id="openFacts" style="width:100%;justify-content:space-between"><span>Vad Anders minns</span><span style="color:var(--muted)" id="factCount">…</span></button></div>
@@ -522,6 +524,7 @@ $("computer_control").onchange = e => { send({type:"settings", settings:{compute
 $("tools").onchange = e => { send({type:"settings", settings:{tools:e.target.checked}}); toast(e.target.checked ? "Internet och verktyg är på" : "Internet och verktyg är av"); };
 $("home_location").addEventListener("change", e => { send({type:"settings", settings:{home_location:e.target.value.trim()}}); toast(e.target.value.trim() ? "Hemort: " + e.target.value.trim() : "Hemort: automatisk"); });
 $("home_location").addEventListener("keydown", e => { if(e.key==="Enter") e.target.blur(); });
+$("roasts").onchange = e => { send({type:"settings", settings:{roasts:e.target.checked}}); toast(e.target.checked ? "Roasts är på" : "Roasts är av"); };
 $("memory").onchange = e => { send({type:"settings", settings:{memory:e.target.checked}}); toast(e.target.checked ? "Minnet är på" : "Minnet är av"); };
 
 /* ---------------- Models ---------------- */
@@ -570,6 +573,7 @@ function syncSettings(){
   $("typedVoiceBtn").innerHTML = typedOn ? SPEAKER_SVG : MUTE_SVG;
   $("typedVoiceBtn").classList.toggle("off", !typedOn);
   $("typedVoiceBtn").title = typedOn ? "Anders läser upp svar när du skriver – klicka för att stänga av (V)" : "Anders svarar tyst när du skriver – klicka för att slå på (V)";
+  $("roasts").checked = settings.roasts !== false;
   $("memory").checked = settings.memory !== false;
   $("tools").checked = settings.tools !== false;
   $("computer_control").checked = settings.computer_control !== false;
